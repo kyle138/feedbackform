@@ -1,0 +1,107 @@
+@charset "utf-8";
+/* CSS Document */
+.logo img {
+  width: 123px;
+  padding: 4px 0;
+}
+.ghost-button {
+  -webkit-appearance: none;
+  background: transparent;
+  border: 2px solid #000;
+  border-radius: 1px;
+  color: #000;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  height: auto;
+  letter-spacing: 2px;
+  line-height: 25px;
+  margin: 30px 0px 0px 0px;
+  padding: 12px 45px;
+  text-align: center;
+  text-transform: uppercase;
+  -webkit-transition: all .3s ease-out;
+  -moz-transition: all .3s ease-out;
+  -ms-transition: all .3s ease-out;
+  -o-transition: all .3s ease-out;
+  transition: all .3s ease-out;
+}
+.ghost-button:hover {
+  background: #000;
+  color: #fff;
+}
+/* mouse icon */
+.mouse-icon {
+  border: 3px solid #151515;
+  border-radius: 14px;
+  bottom: 72px;
+  display: block;
+  height: 48px;
+  left: 50%;
+  margin: 0 0 0 -14px;
+  position: absolute;
+  width: 28px;
+  z-index: 1;
+}
+.mouse-icon > span {
+  background: #151515;
+  border-radius: 2px;
+  height: 4px;
+  left: 9px;
+  position: absolute;
+  top: -18px;
+  width: 4px;
+}
+.mouse-icon > span:before,
+.mouse-icon > span:after {
+  background: #151515;
+  border-radius: 2px;
+  content: "";
+  left: 0;
+  height: 4px;
+  position: absolute;
+  top: 76px;
+  width: 4px;
+}
+.mouse-icon > span:before {
+  top: -11px;
+}
+.mouse-icon > span > span {
+  background: #151515;
+  border-radius: 2px;
+  display: block;
+  height: 10px;
+  position: relative;
+  top: 28px;
+  -webkit-transition: top .15s ease-out;
+  -moz-transition: top .15s ease-out;
+  -ms-transition: top .15s ease-out;
+  -o-transition: top .15s ease-out;
+  transition: top .15s ease-out;
+  width: 4px;
+}
+.mouse-icon.animate > span > span {
+  top: 36px;
+}
+#intro {
+	padding-bottom: 60px;
+}
+.opening-statement {
+  text-align: center;
+}
+@media (min-width: 768px) {
+  #videohero h2, #fallback h2 {
+    font-size: 52px;
+    line-height: 60px;
+    text-transform: none;
+  }
+}
+
+footer {
+	padding: 2.5% 0;
+}
+footer .copy {
+	float: none;
+	text-align: center;
+}
