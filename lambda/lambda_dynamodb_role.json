@@ -1,0 +1,49 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DynamoDB",
+            "Action": [
+                "dynamodb:DeleteItem",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:UpdateItem"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:dynamodb:your-region-here:youraccountnumber:table/feedback"
+        },
+        {
+            "Sid": "SESPerms",
+            "Action": [
+                "ses:SendRawEmail",
+                "ses:SendEmail"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "ForAllValues:StringEquals": {
+                    "ses:FromAddress": [
+                        "youraddress1@yourdomain.com",
+                        "youraddress2@yourdomain.com"
+                    ],
+                    "ses:FeedbackAddress": [
+                        "youraddress1@yourdomain.com",
+                        "youraddress2@yourdomain.com"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "Logs",
+            "Resource": "*",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}

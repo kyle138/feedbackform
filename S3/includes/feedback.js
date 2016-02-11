@@ -27,7 +27,7 @@ $(function() {
 	var formdata = {name: name,email: email,subject: subject,message: message};
 	formdata = JSON.stringify(formdata);
    $.ajax({
-    url: "https://tn7x5hgwhb.execute-api.us-east-1.amazonaws.com/prod/feedback_hen/",
+    url: "https://x840ml1te8.execute-api.us-west-2.amazonaws.com/prod/feedback/",
 		dataType: 'json',
     type: "POST",
 		data: formdata,
