@@ -16,7 +16,7 @@
     <!-- Core theme styles -->
     <link href="css/custom.css" rel="stylesheet" type="text/css">
     <!-- Custom stylesheet, (add custom styles here, always load last) -->
-
+    <link href="css/kylemunz.css" rel="stylesheet" type="text/css" />
     <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
     <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
@@ -24,44 +24,63 @@
 </head>
 
 <body  id="feedback" class="lightnav animsition">
-  <div class="col-md-8 emailform">
-    <h2>Feedback Form</h2>
-      <form name="sentMessage" class="well" id="contactForm"  novalidate>
-          <div class="control-group">
-              <div class="controls">
-                  <p>Your Name</p>
-                  <input type="text" class="form-control" id="name" />
-              </div>
-          </div>
-          <div class="control-group">
-              <div class="controls">
-                  <p>Email Address</p>
-                  <input type="email" class="form-control" id="email" />
-              </div>
-          </div>
-          <div class="control-group">
-              <div class="controls">
-                  <p>Subject</p>
-                  <input type="text" class="form-control" id="subject" />
-              </div>
-          </div>
-          <div class="control-group">
-              <div class="controls">
-                  <p>Your Message (*required)</p>
-                  <textarea rows="10" cols="100" class="form-control" id="message" required data-validation-required-message="Please enter your message" maxlength="5999" style="resize:none"></textarea>
-              </div>
-          </div>
-          <div id="success"> </div>
-          <!-- For success/fail notifications upon clicking 'Send' -->
-          <button type="submit" class="btn btn-default pull-right send">Send</button>
-      </form>
+<div id='wrapper'>
+  <div id='headers'>
+    <div id='headerL' class='header'><a href='http://resume.kylemunz.com/'>Kyle Munz</a></div>
+    <div id='headerR' class='header'><a href='tel:+18323770138'>832.377.0138</a><br/><a href='mailto:kyle@kylemunz.com'>KYLE@KYLEMUNZ.COM</a></div>
   </div>
-  <div class="col-md-12">
-      <hr>
+  <div class="col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+    <div class="col-md-4 feedback">
+      <h2>Feedback Form</h2>
+      <ul>
+        <li>Send me a message</li>
+        <li>Report an issue with my site</li>
+        <li>Learn more about Serverless Forms</li>
+      </ul>
+    </div>
+    <div class="col-md-8 emailform">
+        <form name="sentMessage" class="well" id="contactForm"  novalidate>
+            <div class="control-group">
+                <div class="controls">
+                    <p>Your Name</p>
+                    <input type="text" class="form-control" id="name" />
+                    <div class="help-block"> </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <p>Email Address</p>
+                    <input type="email" class="form-control" id="email" />
+                    <div class="help-block"> </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <p>Subject</p>
+                    <input type="text" class="form-control" id="subject" />
+                    <div class="help-block"> </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <p>Your Message <span class="required">(*Required)</span></p>
+                    <textarea rows="10" cols="100" class="form-control" id="message" required data-validation-required-message="Please enter your message" maxlength="5999" style="resize:none"></textarea>
+                    <div class="help-block"> </div>
+                </div>
+            </div>
+            <div id="success"> </div>
+            <!-- For success/fail notifications upon clicking 'Send' -->
+            <button type="submit" class="btn btn-default pull-right send">Send</button>
+        </form>
+    </div>
+    <div class="col-md-12">
+        <hr>
+    </div>
   </div>
-
+</div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="includes/jqBootstrapValidation.js"></script><!-- Form Validation for contact form -->
   <script src="includes/feedback.js"></script><!-- Feedback form js -->
+
 </body>
 </html>
