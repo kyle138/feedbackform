@@ -1,0 +1,112 @@
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <title>Serverless Forms Using Lambda | KyleMunz.com</title>
+  <link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <!-- Bootstrap framework -->
+  <link href="../css/style.css" rel="stylesheet" type="text/css" />
+  <!-- Core theme styles -->
+  <link href="../css/kylemunz.css" rel="stylesheet" type="text/css" />
+  <link href="../css/feedback.css" rel="stylesheet" type="text/css" />
+  <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+  <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+</head>
+<body>
+  <div id='wrapper'>
+    <div id='headers'>
+      <div id='headerL' class='header'><a href='http://resume.kylemunz.com/'>Kyle Munz</a></div>
+      <div id='headerR' class='header'><a href='tel:+18323770138'>832.377.0138</a><br/><a href='mailto:kyle@kylemunz.com'>KYLE@KYLEMUNZ.COM</a></div>
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+      <div class="col-md-4 feedback">
+        <h2>Feedback Form</h2>
+        <ul>
+          <li><a href="http://feedback.kylemunz.com/">Send me a message</a></li>
+          <li><a href="http://feedback.kylemunz.com/">Report an issue with my site</a></li>
+          <li><a href="http://feedback.kylemunz.com/how-its-done/">Learn more about Serverless Forms</a></li>
+        </ul>
+      </div>
+      <div class="col-md-8 howitsdone">
+  <h1>Serverless feedback form using S3, Lambda, DynamoDB, SES, and API Gateway</h1>
+  <img alt="Serverless Forms using Lambda" src="images/ServerlessFormUsingLambda.png" title="">
+  <h3 class="heading">SES</h3>
+  <ol>
+    <li>Verify a New Email Address (email address you control where feedback will be sent)</li>
+    <li>Make note of the verified email addresses for use in the Role in the Lambda section.</li>
+  </ol>
+  <h3 class="heading">DynamoDB</h3>
+  <ol>
+    <li>Create Table</li>
+    <li>Name it &lsquo;feedback&rsquo;</li>
+    <li>PrimaryKey &lsquo;datetime&rsquo; (string)</li>
+    <li>Make note of the ARN for the role in the next section.</li>
+  </ol>
+  <h3 class="heading">Lambda</h3>
+  <ol>
+    <li>Create Lambda function (use blueprint &lsquo;microservice-http-endpoint&rsquo;)</li>
+    <li>Name the function &lsquo;feedback&rsquo;, make sure runtime is node.js</li>
+    <li>Leave the code as-is for now, we&rsquo;ll update that later</li>
+    <li>Role: Create a new role based off of &lsquo;*Basic with DynamoDB&rsquo;</li>
+    <ol class="sub1">
+      <li>Name the role &lsquo;lambda_dynamodb_feedback&rsquo;</li>
+      <li>Edit the policy with the contents of lambda/lambda_dynamodb_role.json</li>
+      <ol class="sub2">
+        <li>Edit the json resource with the ARN of your dynamoDB</li>
+        <li>Edit the json conditions with the verified email address(es)</li>
+      </ol>
+    </ol>
+    <li>Set API endpoint type to API Gateway</li>
+    <li>Select the feedback gateway created in the API Gateway section</li>
+    <li>Select POST for Method</li>
+    <li>Select Open for Security</li>
+    <li>Review and [Create Function]</li>
+    <li>Now replace the lambda code with the contents of the lambda/lambdafunc.js &gt; [Save and Test]</li>
+    <li>Choose sample event template &lsquo;Hello World&rsquo; and use the following:</li>
+    <pre class="sampleevent"><code>
+{
+ "name": "Test Name",
+ "email": "email@test.com",
+ "subject": "Test Subject",
+ "message": "This is the test message."
+}
+    </code></pre>
+    <li>You should receive &ldquo;True&rdquo;, also the test items should be in the DynamoDB table and in the CloudWatch Logs and you should receive the test via email.</li>
+  </ol>
+  <h3 class="heading">API Gateway</h3>
+  <ol>
+    <li>Create API gateway</li>
+    <li>Select Resource / &gt; [Create Resource]</li>
+    <li>Name the resource &lsquo;feedback&rsquo; with the same resource path (autopopulated)</li>
+    <li>Select the new feedback resource &gt; [Create Method] &gt; Select &lsquo;POST&rsquo;</li>
+    <li>Select &lsquo;Lambda Function&rsquo; for Integration type and choose a Lambda Region</li>
+    <ol class="sub1">
+      <li>Make note of the region as the lambda function and dynamoDB will use the same</li>
+    </ol>
+    <li>Select the Lambda Function field and begin typing &lsquo;feedback&rsquo;, your function created below should be offered as a suggestion.</li>
+    <li>[Enable CORS] (keep defaults and [Enable])</li>
+    <li>[Deploy API]</li>
+    <ol class="sub1">
+      <li>Select New Stage and name it &lsquo;prod&rsquo;</li>
+      <li>Make note of the Invoke URL for use in the front-end feedback.js file that is placed in S3.</li>
+    </ol>
+    <li>Select Resources &gt; POST &gt; TEST. Use the sample event from the previous step as the Request Body and click [Test]</li>
+  </ol>
+  <h3 class="heading">S3</h3>
+  <ol>
+    <li>Create an S3 bucket</li>
+    <li>Name it exactly the same as the domain you will be directing to it (eg: feedback.mydomain.com)</li>
+    <li>Configure it to serve as a website according to the following:</li>
+    <ol class="sub1">
+      <li>
+        <a href="http://docs.aws.amazon.com/gettingstarted/latest/swh/website-hosting-intro.html">http://docs.aws.amazon.com/gettingstarted/latest/swh/website-hosting-intro.html</a>
+      </li>
+    </ol>
+    <li>Place the API Gateway URL from the previous step in the feedback.js</li>
+    <li>Upload S3 files to new bucket.</li>
+  </ol>
+</div>
+</div>
+</div>
+</body>
+</html>
