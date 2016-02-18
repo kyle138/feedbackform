@@ -1,0 +1,32 @@
+.howitsdone {
+  background-color: #fcfcfc;
+}
+.heading {
+  margin-top:30px;
+  margin-bottom:0px;
+  font-size:20px;
+  line-height: 21px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+pre.sampleevent {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+ol.sub1 {
+  list-style-type: upper-alpha;
+}
+ol.sub2 {
+  list-style-type: lower-roman;
+}
+a:hover {
+  text-decoration: underline;
+}
+img {
+  max-width: 100%;
+  height: auto; 
+  margin-left: 0.00px;
+  margin-top: 0.00px;
+  transform: rotate(0.00rad) translateZ(0px);
+  -webkit-transform: rotate(0.00rad) translateZ(0px);
+}
