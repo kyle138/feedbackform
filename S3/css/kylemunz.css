@@ -77,3 +77,6 @@ div.help-block {
   background-color: #a94442;
   color:#ffffff;
 }
+.feedback a:hover {
+  text-decoration: underline;
+}

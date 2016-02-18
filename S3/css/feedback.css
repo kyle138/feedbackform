@@ -19,12 +19,9 @@ ol.sub1 {
 ol.sub2 {
   list-style-type: lower-roman;
 }
-a:hover {
-  text-decoration: underline;
-}
 img {
   max-width: 100%;
-  height: auto; 
+  height: auto;
   margin-left: 0.00px;
   margin-top: 0.00px;
   transform: rotate(0.00rad) translateZ(0px);
