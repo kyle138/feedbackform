@@ -2,7 +2,7 @@ console.log('Loading function');
 
 var AWS = require('aws-sdk');
 var doc = require('dynamodb-doc');
-var dynamo = new AWS.DynamoDB({params: {TableName: 'feedback_km'}});
+var dynamo = new AWS.DynamoDB({params: {TableName: 'feedback'}});
 var ses = new AWS.SES();
 
 exports.handler = function(event, context) {
@@ -42,8 +42,8 @@ exports.handler = function(event, context) {
             } else {
               //DynamoDB put successfull, send the email.
               //console.log('DynamoDB put successful'); //DEBUG
-              emailSubject = "KyleMunz.com Feedback";
-              emailBody = "<p>You have received feedback regarding KyleMunz.com.</p>\r\nDate Submitted: "+DateTime+"<br/>\r\nTheir Name: ";
+              emailSubject = "Feedback from your serverless form";
+              emailBody = "Date Submitted: "+DateTime+"<br/>\r\nTheir Name: ";
               if(Name){ emailBody+=Name+"<br/>\r\nEmail Address: ";}
                 else{ emailBody+="Not given<br/>\r\nEmail Address: ";}
               if(Email){ emailBody+=Email+"<br/>\r\nSubject: ";}
@@ -53,7 +53,7 @@ exports.handler = function(event, context) {
               emailBody+="Message: "+Message+"<br/>\r\n";
               emailParams = {
                 Destination: {
-                      ToAddresses: ["feedback@kylemunz.com"]
+                      ToAddresses: ["feedback@yourdomain.com"]
                 },
                 Message: {
                     Body: {
@@ -67,9 +67,9 @@ exports.handler = function(event, context) {
                     Charset: 'UTF-8'
                   }
                 },
-                ReplyToAddresses: ["feedback@kylemunz.com"],
-                ReturnPath: "feedback@kylemunz.com",
-                Source: "feedback@kylemunz.com"
+                ReplyToAddresses: ["feedback@yourdomain.com"],
+                ReturnPath: "feedback@yourdomain.com",
+                Source: "feedback@yourdomain.com"
               };
               ses.sendEmail(emailParams,function(err, data) {
                 if (err) {
