@@ -1,7 +1,9 @@
 Serverless feedback form using Bootstrap, JQuery, S3, Lambda, DynamoDB, SES, and API Gateway.
 
-The walkthroughs below provide the front end code for a serverless contact or feedback form
+
+The links below provide the front end code for a serverless contact or feedback form
 as well as the necessary steps in AWS to setup an API Gateway, IAM roles, Lambda function, and a DynamoDB Table.
+
 
 The code in this repo is split into two folders, [S3] and [lambda].
 [S3]:
@@ -12,7 +14,14 @@ information and submitting the data to the API Gateway.
 The lambda folder contains a single lambdafunc.js file. The contents of this file will be copied into
 your lambda function from within the AWS console.
 
-Credits given below::
+
+A brief walkthrough can be found at the following:
+http://feedback.kylemunz.com/how-its-done/
+
+
+Credits::
+By no means did I come up with all of this by myself. I simply integrated the ideas from the three links found below.
+
 Bootstrap Jquery form source:
 http://myprogrammingblog.com/2013/08/27/how-to-make-a-contact-form-with-bootstrap-3-jqueryphphtml5jqbootstrapvalidation/
 
