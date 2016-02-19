@@ -1,6 +1,16 @@
 .howitsdone {
   background-color: #fcfcfc;
 }
+.howitsdone p {
+  margin-top:20;
+  margin-bottom:20;
+}
+.howitsdone strong {
+  color: #151515;
+}
+p#introduction:first-letter {
+  font-size: 50px;
+}
 .heading {
   margin-top:30px;
   margin-bottom:0px;
