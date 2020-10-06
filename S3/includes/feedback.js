@@ -25,9 +25,9 @@ $(function() {
       formdata = JSON.stringify(formdata);
       $.ajax({
         url: "https://x840ml1te8.execute-api.us-west-2.amazonaws.com/prod/feedback/",
-    		dataType: 'json',
+        dataType: 'json',
         type: "POST",
-    		data: formdata,
+        data: formdata,
         cache: false,
       	success: function() {
       	  // Success message
