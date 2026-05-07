@@ -20,7 +20,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
-      Handler: lambdafunc.handler
+      Handler: feedback.handler
       Architectures:
         - x86_64
       Events:
@@ -40,4 +40,3 @@ Outputs:
   FeedbackFormFunctionIamRole:
     Description: "Implicit IAM Role created for Feedback Form Function"
     Value: !GetAtt FeedbackFormFunctionRole.Arn 
-    

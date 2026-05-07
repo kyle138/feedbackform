@@ -3,9 +3,9 @@ version: 0.1
 default:
   global:
     parameters:
-      stack_name: sam-feedbackform-dev
-      tags:
-        - feebackform
+      stack_name: sam-feedbackform
+      # tags:
+      #   - feebackform
       timeout: 300
   
   build:

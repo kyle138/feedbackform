@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: sam-feedbackform
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    MemorySize: 128
+    Timeout: 30
+    Environment:
+      Variables:
+        ENV_VAR: An env variable
+Resources:
+  FeedbackFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: FeedbackFormFunction
+      Handler: feedback.handler
+      Architectures:
+      - x86_64
+      Events:
+        Feedback:
+          Type: API
+          Properties:
+            Path: /feedback
+            Method: post
+    Metadata:
+      SamResourceId: FeedbackFormFunction
+Outputs:
+  FeedbackFormApi:
+    Description: API Gateway endpoint URL for Prod stage for Feedback form
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/feedback/
+  FeedbackFormFunction:
+    Description: Feedback form Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - FeedbackFormFunction
+      - Arn
+  FeedbackFormFunctionIamRole:
+    Description: Implicit IAM Role created for Feedback Form Function
+    Value:
+      Fn::GetAtt:
+      - FeedbackFormFunctionRole
+      - Arn
