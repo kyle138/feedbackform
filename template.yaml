@@ -27,11 +27,11 @@ Resources:
         - nodejs24.x
     Metadata:
       BuildMethod: nodejs24.x
-  FeedbackFormFunction:
+  ListenerFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: handlers/feedback.handler
+      Handler: handlers/listener.handler
       Architectures:
         - x86_64
       Layers:
@@ -71,9 +71,9 @@ Outputs:
   FeedbackFormApi:
     Description: "API Gateway endpoint URL for Prod stage for Feedback form"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/feedback/"
-  FeedbackFormFunction: 
+  ListenerFunction: 
     Description: "Feedback form Lambda Function ARN"    
-    Value: !GetAtt FeedbackFormFunction.Arn 
-  FeedbackFormFunctionIamRole:
+    Value: !GetAtt ListenerFunction.Arn 
+  ListenerFunctionIamRole:
     Description: "Implicit IAM Role created for Feedback Form Function"
-    Value: !GetAtt FeedbackFormFunctionRole.Arn 
+    Value: !GetAtt ListenerFunctionRole.Arn 

@@ -18,6 +18,7 @@
 
 
 // Load modules
+import createResponseObject from 'create-response-object';
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "../libs/ddbDocClient.mjs";
 // import { handleError } from "../libs/handleError.js";
@@ -94,18 +95,21 @@ function trimObj(obj) {
 // message {string} - *REQUIRED* 
 // @returns {promise}
 async function postDynamo(params) {
-
+  console.debug(`postDynamo: `,JSON.stringify(params,null,2)); // DEBUG
+  console.debug(`postDynamo:params.site:: ${params.site}`); // DEBUG
   const pdParams = {
     TableName: process.env.FEEDBACKS_TABLE_NAME,
     Item: {
-      datetime: new Date/1000,
-      site: params.site | "",
-      name: params.name | "",
-      email: params.email | "",
-      subject: params.subject | "",
-      message: params.message | "Blank Message"
+      datetime: new Date().toString(),
+      site: params.site,
+      name: params.name,
+      email: params.email,
+      subject: params.subject,
+      message: params.message.length > 0 ? params.message : "Blank Message"
     }
   };
+
+  console.debug(`postDynamo:pdParams::`,JSON.stringify(pdParams,null,2)); // DEBUG
 
   return await ddbDocClient.send(new PutCommand(pdParams));
 } // End postDynamo
@@ -114,8 +118,6 @@ async function postDynamo(params) {
 // Main handler
 export const handler = async (event, context) => {
   console.log(`Received event: ${JSON.stringify(event,null,2)}`); // DEBUG:
-
-  var DateTime = new Date().toString();
 
   var eventObj = JSON.parse(event?.body);
   console.debug(`eventObj: `,JSON.stringify(eventObj,null,2)); // DEBUG Yeah I parsed it to stringify it
@@ -131,21 +133,35 @@ export const handler = async (event, context) => {
     validateRequiredVar(eventObj?.message),
     robotrap(eventObj?.score)
   ]) 
+  .then(async (resp) => {
+    console.debug(`Promise.all.then.resp: `,resp); // DEBUG
+    return await postDynamo(eventObj);
+  })  // End Promise.all.then
   .then((resp) => {
-    console.debug(`Promise.all.then.resp...`,resp); // DEBUG
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: 'Honky Donky',
-      })
-    };
-
-    return response;
-    
-  })
+    console.debug(`Promise.all.then.then.resp...`,resp); // DEBUG
+    return createResponseObject({
+      code: '200',
+      message: "Honky Donky 2"
+    });  
+  })  // End Promise.all.then.then
   .catch((err) => {
     console.debug(`Error:..`,err); // DEBUG
-  }); // End ValidateRequiredVar
+
+    let cro = (err == "Insuffient empathetic response") 
+            ? 
+              { 
+                code: '400',
+                message: "Insufficient empathetic request. Please contact admin."
+              } 
+            : 
+              {
+                code: '500',
+                message: err.toString()
+              };
+
+    console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
+    return createResponseObject(cro);
+  }); // End Promise.all
 
 };  // End Handler
   
