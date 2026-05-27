@@ -4,8 +4,8 @@ default:
   global:
     parameters:
       stack_name: sam-feedbackform
-      # tags:
-      #   - feebackform
+      tags:
+      - Stack=feebackform
       timeout: 300
 
       region: us-east-1
@@ -26,7 +26,6 @@ default:
       timeout: 300
 
       s3_prefix: sam-feedbackform
-      region: us-east-1
       image_repositories: []
   package:
     parameters:
@@ -44,28 +43,28 @@ default:
     parameters:
       warm_containers: EAGER
 
-dev:
-  deploy:
-    parameters:
-      capabilities: CAPABILITY_IAM
-      stack_name: sam-feedbackform-dev
-      s3_bucket: sam-feedbackform-bucket-dev
-      timeout: 300
-      parameter_overrides:
-      - DeploymentBucket=sam-feedbackform-artifacts-dev
-      - Region=us-east-1
-      - Stage=dev
-      - LogLevel=debug
+# dev:
+#   deploy:
+#     parameters:
+#       capabilities: CAPABILITY_IAM
+#       stack_name: sam-feedbackform-dev
+#       s3_bucket: sam-feedbackform-bucket-dev
+#       timeout: 300
+#       parameter_overrides:
+#       - DeploymentBucket=sam-feedbackform-artifacts-dev
+#       - Region=us-east-1
+#       - Stage=dev
+#       - LogLevel=debug
 
-prod:
-  deploy:
-    parameters:
-      capabilities: CAPABILITY_IAM
-      stack_name: sam-feedbackform-prod
-      s3_bucket: sam-feedbackform-bucket-prod
-      timeout: 300
-      parameter_overrides:
-      - DeploymentBucket=sam-feedbackform-artifacts-prod
-      - Region=us-east-1
-      - Stage=prod
-      - LogLevel=fatal
+# prod:
+#   deploy:
+#     parameters:
+#       capabilities: CAPABILITY_IAM
+#       stack_name: sam-feedbackform-prod
+#       s3_bucket: sam-feedbackform-bucket-prod
+#       timeout: 300
+#       parameter_overrides:
+#       - DeploymentBucket=sam-feedbackform-artifacts-prod
+#       - Region=us-east-1
+#       - Stage=prod
+#       - LogLevel=fatal

@@ -12,23 +12,60 @@ Globals:
     Environment:
       Variables:
         ENV_VAR: "An env variable"
-        # TABLE_NAME: !Ref UserTableName
+        FEEDBACKS_TABLE_NAME: !Ref FeedbacksTable
+
 
 # Resources
 Resources:
+  ListenerLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layers/listener-layer
+      LayerName: listener-layer
+      Description: Layer for listener handler
+      CompatibleRuntimes:
+        - nodejs24.x
+    Metadata:
+      BuildMethod: nodejs24.x
   FeedbackFormFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/
-      Handler: feedback.handler
+      CodeUri: src/
+      Handler: handlers/feedback.handler
       Architectures:
         - x86_64
+      Layers:
+        - !Ref ListenerLayer
+      Policies:
+        - DynamoDBCrudPolicy: # SAM policy template for CRUD access
+            TableName: !Ref FeedbacksTable
       Events:
         FeedbackForm: 
           Type: Api 
           Properties:
             Path: /feedback
             Method: post 
+  FeedbacksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-Feedbacks"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: datetime
+          AttributeType: S
+      KeySchema:
+        - AttributeName: datetime
+          KeyType: HASH
+      OnDemandThroughput:
+        MaxReadRequestUnits: 10
+        MaxWriteRequestUnits: 10
+      TableClass: STANDARD_INFREQUENT_ACCESS
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+      DeletionProtectionEnabled: false
+      # StreamSpecification:
+      #   StreamViewType: NEW_IMAGE
             
 Outputs: 
   FeedbackFormApi:

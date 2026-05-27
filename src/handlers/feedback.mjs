@@ -11,6 +11,19 @@
  * 
  */
 
+//
+// feedback.mjs
+// Lambda to answer APIG calls, check for required fields, push to DDB.
+//
+
+
+// Load modules
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { ddbDocClient } from "../libs/ddbDocClient.mjs";
+// import { handleError } from "../libs/handleError.js";
+
+
+//
 // validateRequiredVar
 // Checks if the supplied variable is of type string and has length
 // @param {var} reqvar - the variable to check
@@ -27,6 +40,7 @@ function validateRequiredVar(reqvar) {
   }); // End Promise
 } // End validateRequiredvar
 
+//
 // robotrap
 // Checks for sufficient empathetic response (hint: we want it to be empty)
 // @param {var} vrbl - the variable to check
@@ -54,6 +68,47 @@ function robotrap(vrbl) {
     }
   }); // End Promise
 } // End robotrap
+
+//
+// trimObj
+// Trims all keys in provided object.
+// @argument 
+// obj {object} - the object to trim
+// @returns {promise} - the trimmed object 
+function trimObj(obj) {
+  return new Promise((resolve) => {
+    if(typeof obj === 'object') {
+      Object.keys(obj).forEach(k => obj[k] = typeof obj[k] == 'string' ? obj[k].trim() : obj[k]);
+      console.debug(`trimObj:obj(trimmed)::`,JSON.stringify(obj,null,2)); // DEBUG
+      return resolve(obj);
+    } else {
+      return resolve(obj);
+    }
+  }); // End Promise
+} // End trimObj
+
+//
+// postDynamo
+// Posts message to DDB
+// @params {object}
+// message {string} - *REQUIRED* 
+// @returns {promise}
+async function postDynamo(params) {
+
+  const pdParams = {
+    TableName: process.env.FEEDBACKS_TABLE_NAME,
+    Item: {
+      datetime: new Date/1000,
+      site: params.site | "",
+      name: params.name | "",
+      email: params.email | "",
+      subject: params.subject | "",
+      message: params.message | "Blank Message"
+    }
+  };
+
+  return await ddbDocClient.send(new PutCommand(pdParams));
+} // End postDynamo
 
 // ************
 // Main handler
