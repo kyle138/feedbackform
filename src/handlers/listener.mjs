@@ -140,7 +140,7 @@ export const handler = async (event, context) => {
     console.debug(`Promise.all.then.then.resp...`,resp); // DEBUG
     return createResponseObject({
       code: '200',
-      message: "Honky Donky 2"
+      message: "Hailing frequencies open."
     });  
   })  // End Promise.all.then.then
   .catch((err) => {
