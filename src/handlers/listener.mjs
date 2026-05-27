@@ -96,7 +96,6 @@ function trimObj(obj) {
 // @returns {promise}
 async function postDynamo(params) {
   console.debug(`postDynamo: `,JSON.stringify(params,null,2)); // DEBUG
-  console.debug(`postDynamo:params.site:: ${params.site}`); // DEBUG
   const pdParams = {
     TableName: process.env.FEEDBACKS_TABLE_NAME,
     Item: {
@@ -109,6 +108,10 @@ async function postDynamo(params) {
     }
   };
 
+  if(typeof params.headers === 'object' && Object.keys(params.headers).length > 0) {
+    pdParams.Item.headers = params.headers;
+    pdParams.Item.IPs = params.headers['X-Forwarded-For'];
+  }
   console.debug(`postDynamo:pdParams::`,JSON.stringify(pdParams,null,2)); // DEBUG
 
   return await ddbDocClient.send(new PutCommand(pdParams));
@@ -120,13 +123,9 @@ export const handler = async (event, context) => {
   console.log(`Received event: ${JSON.stringify(event,null,2)}`); // DEBUG:
 
   var eventObj = JSON.parse(event?.body);
+  eventObj.headers = event.headers;
   console.debug(`eventObj: `,JSON.stringify(eventObj,null,2)); // DEBUG Yeah I parsed it to stringify it
-  console.debug(`eventObj.message: ${eventObj.message}`); // DEBUG
-
-  // ******************
-  // Fields should be::
-  // name, email, site, subject, message, score (trap)
-
+  
 
   // Message is a required field, but Score is *not*.
   return await Promise.all([
