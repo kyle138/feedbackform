@@ -1,4 +1,4 @@
-import { ddbDocClient } from "./ddbDocClient.js";
+import { ddbDocClient } from "./ddbDocClient.mjs";
 
 // 
 // handleError

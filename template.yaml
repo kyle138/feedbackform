@@ -27,6 +27,14 @@ Resources:
         - nodejs24.x
     Metadata:
       BuildMethod: nodejs24.x
+  ProcessorLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layers/processor-layer
+      LayerName: processor-layer
+      Description: Layer for processor handler
+      CompatibleRuntimes:
+        - nodejs24.x
   ListenerFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -64,8 +72,24 @@ Resources:
         SSEEnabled: true
         SSEType: KMS
       DeletionProtectionEnabled: false
-      # StreamSpecification:
-      #   StreamViewType: NEW_IMAGE
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+  ProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/processor.handler
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref ProcessorLayer
+      Events:
+        FeedbacksTableStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt FeedbacksTable.StreamArn
+            BatchSize: 100
+            StartingPosition: LATEST
             
 Outputs: 
   FeedbackFormApi:

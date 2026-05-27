@@ -21,7 +21,7 @@
 import createResponseObject from 'create-response-object';
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "../libs/ddbDocClient.mjs";
-// import { handleError } from "../libs/handleError.js";
+import { handleError } from "../libs/handleError.mjs";
 
 
 //
@@ -126,6 +126,15 @@ export const handler = async (event, context) => {
   eventObj.headers = event.headers;
   console.debug(`eventObj: `,JSON.stringify(eventObj,null,2)); // DEBUG Yeah I parsed it to stringify it
   
+  // Check if Feedbacks table has been set as an environment variable
+  if(!process.env.FEEDBACKS_TABLE_NAME) {
+    console.log(`process.env.FEEDBACKS_TABLE_NAME is missing.`);
+    handleError("process.env.FEEDBACKS_TABLE_NAME","Missing required environment variable.",context);
+    return createResponseObject({
+      code: '500',
+      message: 'Insufficient environmental conditions.'
+    });
+  }
 
   // Message is a required field, but Score is *not*.
   return await Promise.all([
