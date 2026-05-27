@@ -156,7 +156,8 @@ export const handler = async (event, context) => {
               {
                 code: '500',
                 message: err.toString()
-              };
+              }
+            ;
 
     console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
     return createResponseObject(cro);
