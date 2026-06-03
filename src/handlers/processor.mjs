@@ -5,7 +5,6 @@
 
 // Load modules
 import { smClient } from "../libs/secretsClient.mjs";
-// import { GetSecretValuecommand } from "@aws-sdk/client-secrets-manager";
 import { GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { sesClient } from "../libs/sesClient.mjs";
@@ -69,39 +68,45 @@ function loadSettings(params) {
 // @returns {promise} - Mime message
 function processRecum(rec) {
   return new Promise(async (resolve,reject) => {
-    const site = rec?.site ? rec.site : "Site Missing";
-    const msg = createMimeMessage();
-    msg.setSender(settings.SENDER);
-    msg.setTo(settings.RECEIVER);
-    msg.setSubject(`[FEEDBACK] Site: ${rec.site}`);
-    msg.addMessage({
-      contentType: 'text/plain',
-      data: `You have received feedback regarding site: ${rec.site}\n\n` +
-            `Date Submitted: ${rec.datetime}\n` +
-            `Name Submitted: ${rec.name}\n` +
-            `Email Address: ${rec.email}\n` +
-            `Subject: ${rec.subject}\n` +
-            `Message: ${rec.message}\n\n`
-    });
-    console.debug(`processRecum:msg:: `,JSON.stringify(msg,null,2)); // DEBUG
-
-    const params = {
-      Destinations: msg.getRecipients({type: 'to'}).map(box => box.addr),
-      RawMessage: {
-        Data: Buffer.from(msg.asRaw(), 'utf8')
-      },
-      Source: msg.getSender().addr
-    };
-
-    await sesClient.send(new SendRawEmailCommand(params))
-    .then((resp) => {
-      console.debug(`sesClient.send: `,resp); // DEBUG
-      return resolve(resp.MessageId); 
-    })  // end sesClient.then
-    .catch((err) => {
-      console.error(`processRecum:sesClient.err:: `,err);
-      return reject (err)
-    }); // End sesClient.send
+    // Check that SENDER and RECEIVER are set, these are REQUIRED
+    if(!settings.hasOwnProperty('SENDER') || !settings.hasOwnProperty('RECEIVER')) {
+      console.error('processRecum: SENDER and RECEIVER are missing.');
+      return reject(new Error("SENDER y RECEIVER are required."));
+    } else {
+      const site = rec?.site ? rec.site : "Site Missing";
+      const msg = createMimeMessage();
+      msg.setSender(settings.SENDER);
+      msg.setTo(settings.RECEIVER);
+      msg.setSubject(`[FEEDBACK] Site: ${rec.site}`);
+      msg.addMessage({
+        contentType: 'text/plain',
+        data: `You have received feedback regarding site: ${rec.site}\n\n` +
+              `Date Submitted: ${rec?.datetime}\n` +
+              `Name Submitted: ${rec?.name}\n` +
+              `Email Address: ${rec?.email}\n` +
+              `Subject: ${rec?.subject}\n` +
+              `Message: ${rec?.message}\n\n`
+      });
+      console.debug(`processRecum:msg:: `,JSON.stringify(msg,null,2)); // DEBUG
+  
+      const params = {
+        Destinations: msg.getRecipients({type: 'to'}).map(box => box.addr),
+        RawMessage: {
+          Data: Buffer.from(msg.asRaw(), 'utf8')
+        },
+        Source: msg.getSender().addr
+      };
+  
+      await sesClient.send(new SendRawEmailCommand(params))
+      .then((resp) => {
+        console.debug(`sesClient.send: `,resp); // DEBUG
+        return resolve(resp.MessageId); 
+      })  // end sesClient.then
+      .catch((err) => {
+        console.error(`processRecum:sesClient.err:: `,err);
+        return reject (err)
+      }); // End sesClient.send
+    } // End if/else SENDER/RECEIVER set
 
   }); // End Promise
 } // End processRecum
