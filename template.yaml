@@ -11,7 +11,6 @@ Globals:
     Timeout: 30
     Environment:
       Variables:
-        ENV_VAR: "An env variable"
         FEEDBACKS_TABLE_NAME: !Ref FeedbacksTable
 
 
@@ -53,6 +52,31 @@ Resources:
           Properties:
             Path: /feedback
             Method: post 
+  ProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/processor.handler
+      Policies: 
+        # Simplified permission using SAM policy templates
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref FeedbackSecret
+        - SESBulkTemplatedCrudPolicy:
+            IdentityName: !Sub ${FeedbackSesId}
+      Environment:
+        Variables:
+          SECRET_NAME: !Sub "${AWS::StackName}-Secret"
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref ProcessorLayer
+      Events:
+        FeedbacksTableStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt FeedbacksTable.StreamArn
+            BatchSize: 100
+            StartingPosition: LATEST
   FeedbacksTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -74,22 +98,15 @@ Resources:
       DeletionProtectionEnabled: false
       StreamSpecification:
         StreamViewType: NEW_IMAGE
-  ProcessorFunction:
-    Type: AWS::Serverless::Function
+  FeedbackSecret:
+    Type: AWS::SecretsManager::Secret
     Properties:
-      CodeUri: src/
-      Handler: handlers/processor.handler
-      Architectures:
-        - x86_64
-      Layers:
-        - !Ref ProcessorLayer
-      Events:
-        FeedbacksTableStream:
-          Type: DynamoDB
-          Properties:
-            Stream: !GetAtt FeedbacksTable.StreamArn
-            BatchSize: 100
-            StartingPosition: LATEST
+      Name: !Sub "${AWS::StackName}-Secret"
+      Description: "Secrets for feedbackform app"
+  FeedbackSesId:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Sub '{{resolve:secretsmanager:${FeedbackSecret}::RECEIVER::}}'
             
 Outputs: 
   FeedbackFormApi:
