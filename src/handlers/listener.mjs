@@ -132,7 +132,11 @@ export const handler = async (event, context) => {
     handleError("process.env.FEEDBACKS_TABLE_NAME","Missing required environment variable.",context);
     return createResponseObject({
       code: '500',
-      message: 'Insufficient environmental conditions.'
+      message: 'Insufficient environmental conditions.',
+      cors: {
+        allowOrigin: event.headers.origin,
+        allowMethods: 'OPTIONS,POST'
+      }
     });
   }
 
@@ -149,7 +153,11 @@ export const handler = async (event, context) => {
     console.debug(`Promise.all.then.then.resp...`,resp); // DEBUG
     return createResponseObject({
       code: '200',
-      message: "Hailing frequencies open."
+      message: "Hailing frequencies open.",
+      cors: {
+        allowOrigin: event.headers.origin,
+        allowMethods: 'OPTIONS,POST'
+      }
     });  
   })  // End Promise.all.then.then
   .catch((err) => {
@@ -159,12 +167,20 @@ export const handler = async (event, context) => {
             ? 
               { 
                 code: '400',
-                message: "Insufficient empathetic request. Please contact admin."
+                message: "Insufficient empathetic request. Please contact admin.",
+                cors: {
+                  allowOrigin: event.headers.origin,
+                  allowMethods: 'OPTIONS,POST'
+                }
               } 
             : 
               {
                 code: '500',
-                message: err.toString()
+                message: err.toString(),
+                cors: {
+                  allowOrigin: event.headers.origin,
+                  allowMethods: 'OPTIONS,POST'
+                }
               }
             ;
 
