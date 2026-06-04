@@ -44,8 +44,11 @@ Resources:
       Layers:
         - !Ref ListenerLayer
       Policies:
-        - DynamoDBCrudPolicy: # SAM policy template for CRUD access
+        # SAM policy template for CRUD access
+        - DynamoDBCrudPolicy: 
             TableName: !Ref FeedbacksTable
+        - DynamoDBWritePolicy:
+            TableName: "errorLogs"
       Events:
         FeedbackForm: 
           Type: Api 

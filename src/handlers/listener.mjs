@@ -160,7 +160,7 @@ export const handler = async (event, context) => {
       }
     });  
   })  // End Promise.all.then.then
-  .catch((err) => {
+  .catch(async (err) => {
     console.debug(`Error:..`,err); // DEBUG
 
     let cro = (err == "Insuffient empathetic response") 
@@ -184,6 +184,7 @@ export const handler = async (event, context) => {
               }
             ;
 
+    await handleError("Promise.all.catch",cro.message,context);
     console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
     return createResponseObject(cro);
   }); // End Promise.all
