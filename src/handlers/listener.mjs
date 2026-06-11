@@ -16,6 +16,8 @@
 // Lambda to answer APIG calls, check for required fields, push to DDB.
 //
 
+// Set settings up here to survive warm starts
+const qoqmey=[];
 
 // Load modules
 import createResponseObject from 'create-response-object';
@@ -59,6 +61,8 @@ function robotrap(vrbl) {
       await validateRequiredVar(vrbl)
       .then(() => {
         console.log(`Game: Checkers, Number of Players: 0`); // Bad robot!
+        // Set robotrap true in settings object for subsequent attempts.
+
         return reject('Insuffient empathetic response');
       })
       .catch((err) => {
@@ -124,6 +128,7 @@ export const handler = async (event, context) => {
 
   var eventObj = JSON.parse(event?.body);
   eventObj.headers = event.headers;
+  eventObj.sourceIP = event.headers["X-Forwarded-For"].split(',')[0];
   console.debug(`eventObj: `,JSON.stringify(eventObj,null,2)); // DEBUG Yeah I parsed it to stringify it
   
   // Check if Feedbacks table has been set as an environment variable
@@ -136,6 +141,20 @@ export const handler = async (event, context) => {
       cors: {
         allowOrigin: event.headers.origin,
         allowMethods: 'OPTIONS,POST'
+      }
+    });
+  }
+
+  // Check if SourceIP is already recorded
+  if(qoqmey.includes(eventObj.sourceIP)) {
+    console.log(`SourceIP included in qoqmey.`);
+    handleError("SourceIP",`SourceIP ${eventObj.sourceIP} already exists in qoqmey array.`,context);
+    return createResponseObject({
+      code: '400',
+      message: "Insufficient empathetic request. Please contact admin.",
+      cors: {
+                  allowOrigin: event.headers.origin,
+                  allowMethods: 'OPTIONS,POST'
       }
     });
   }
@@ -163,26 +182,24 @@ export const handler = async (event, context) => {
   .catch(async (err) => {
     console.debug(`Error:..`,err); // DEBUG
 
-    let cro = (err == "Insuffient empathetic response") 
-            ? 
-              { 
-                code: '400',
-                message: "Insufficient empathetic request. Please contact admin.",
-                cors: {
+    const cro={
+      cors: {
                   allowOrigin: event.headers.origin,
                   allowMethods: 'OPTIONS,POST'
-                }
-              } 
-            : 
-              {
-                code: '500',
-                message: err.toString(),
-                cors: {
-                  allowOrigin: event.headers.origin,
-                  allowMethods: 'OPTIONS,POST'
-                }
-              }
-            ;
+      }
+    };
+
+    if(err == "Insuffient empathetic response") {
+      cro.code = '400';
+      cro.message = "Insufficient empathetic request. Please contact admin."
+
+      // Push Source IP to qoqmey
+      qoqmey.push(eventObj.sourceIP);
+      console.debug(`qoqmey: ${qoqmey}`); // DEBUG
+    } else {
+      cro.code = '500';
+      cro.message = err.toString();
+    } // End if/else err empathy
 
     await handleError("Promise.all.catch",cro.message,context);
     console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
