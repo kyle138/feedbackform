@@ -80,6 +80,7 @@ Resources:
             Stream: !GetAtt FeedbacksTable.StreamArn
             BatchSize: 100
             StartingPosition: LATEST
+            FunctionResponseTypes: [ReportBatchItemFailures]
   FeedbacksTable:
     Type: AWS::DynamoDB::Table
     Properties:

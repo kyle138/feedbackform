@@ -24,40 +24,29 @@ const settings={};
 // Otherwise retrieves settings from ASM 
 // Parameters:
 // secretName - The ASM secret name retrief from process.env
-function loadSettings(params) {
-  return new Promise(async (resolve, reject) => {
-    console.debug(`loadSettings:params:: `,JSON.stringify(params,null,2)); // DEBUG
-    // Check if keyPair is already stored on global 'settings' object.
-    if(settings.hasOwnProperty('SENDER') && settings.hasOwnProperty('RECEIVER')) {
-      console.log('loadSettings: SENDER and RECEIVER are already set.');
-      return resolve();
-    } else {
-      if(!params.secretName) {
-        console.log('loadSettings:params:: ',JSON.stringify(params,null,2));
-        return reject('loadSettings: secretName is a required parameter.');
-      } else {
-        // Retrieve SENDER/RECEIVER from ASM
-        // Note: If this Lambda is in a VPC you will be "awaiting" a long time(out) if 
-        // you don't first configure a VPC Endpoint for ASM.
-        return await smClient.send(
-          new GetSecretValueCommand({SecretId: params.secretName})
-        )
-        .then((resp) => {
-          console.debug('loadSettings:smClient::resp::: ',resp); // DEBUG:
-          console.log('loadSettings: settings set.');
-          const secret = JSON.parse(resp.SecretString);
-          settings.SENDER = secret.SENDER;
-          settings.RECEIVER = secret.RECEIVER;
-          console.debug(`settings: `,JSON.stringify(settings,null,2)); // DEBUG
-          return resolve();
-        })
-        .catch((err) => {
-          console.log('loadSettings:smClient::err::: ', err);
-          return reject(err);
-        }); // End getPATFromASM
-      } // End if/else params
-    } // End if/else 'pelcroAT'
-  }); // End Promise
+async function loadSettings(params) {
+  console.debug(`loadSettings:params:: `,JSON.stringify(params,null,2)); // DEBUG
+  // Check if keyPair is already stored on global 'settings' object.
+  if(settings.hasOwnProperty('SENDER') && settings.hasOwnProperty('RECEIVER')) {
+    console.log('loadSettings: SENDER and RECEIVER are already set.');
+    return;
+  }
+
+  if(!params.secretName) {
+    console.error('loadSettings:secretName MISSING:: ',JSON.stringify(params,null,2));
+    throw new Error('loadSettings: secretName is a required parameter.');
+  }
+
+  // Retrieve SENDER/RECEIVER from ASM
+  // Note: If this Lambda is in a VPC you will be "awaiting" a long time(out) if 
+  // you don't first configure a VPC Endpoint for ASM.
+  const lSresp = await smClient.send(new GetSecretValueCommand({SecretId: params.secretName}));
+  console.debug('loadSettings:smClient::lSresp::: ',lSresp); // DEBUG:
+  console.log('loadSettings: settings set.');
+  const secret = JSON.parse(lSresp.SecretString);
+  settings.SENDER = secret.SENDER;
+  settings.RECEIVER = secret.RECEIVER;
+  console.debug(`settings cached:: `,JSON.stringify(settings,null,2)); // DEBUG
 } // End loadSettings
 
 
@@ -66,81 +55,89 @@ function loadSettings(params) {
 // processes individual recum to generate mime message for email
 // @params rec {object} - The recum to process
 // @returns {promise} - Mime message
-function processRecum(rec) {
-  return new Promise(async (resolve,reject) => {
-    // Check that SENDER and RECEIVER are set, these are REQUIRED
-    if(!settings.hasOwnProperty('SENDER') || !settings.hasOwnProperty('RECEIVER')) {
-      console.error('processRecum: SENDER and RECEIVER are missing.');
-      return reject(new Error("SENDER y RECEIVER are required."));
-    } else {
-      const site = rec?.site ? rec.site : "Site Missing";
-      const msg = createMimeMessage();
-      msg.setSender(settings.SENDER);
-      msg.setTo(settings.RECEIVER);
-      msg.setSubject(`[FEEDBACK] Site: ${rec.site}`);
-      msg.addMessage({
-        contentType: 'text/plain',
-        data: `You have received feedback regarding site: ${rec.site}\n\n` +
-              `Date Submitted: ${rec?.datetime}\n` +
-              `Name Submitted: ${rec?.name}\n` +
-              `Email Address: ${rec?.email}\n` +
-              `Subject: ${rec?.subject}\n` +
-              `Message: ${rec?.message}\n\n`
-      });
-      console.debug(`processRecum:msg:: `,JSON.stringify(msg,null,2)); // DEBUG
-  
-      const params = {
-        Destinations: msg.getRecipients({type: 'to'}).map(box => box.addr),
-        RawMessage: {
-          Data: Buffer.from(msg.asRaw(), 'utf8')
-        },
-        Source: msg.getSender().addr
-      };
-  
-      await sesClient.send(new SendRawEmailCommand(params))
-      .then((resp) => {
-        console.debug(`sesClient.send: `,resp); // DEBUG
-        return resolve(resp.MessageId); 
-      })  // end sesClient.then
-      .catch((err) => {
-        console.error(`processRecum:sesClient.err:: `,err);
-        return reject (err)
-      }); // End sesClient.send
-    } // End if/else SENDER/RECEIVER set
+async function processRecum(rec) {
+  // Check that SENDER and RECEIVER are set, these are REQUIRED
+  if(!settings.hasOwnProperty('SENDER') || !settings.hasOwnProperty('RECEIVER')) {
+    console.error('processRecum: SENDER and RECEIVER are missing.');
+    throw new Error("SENDER y RECEIVER are required.");
+  } else {
+    const site = rec?.site ? rec.site : "Site Missing";
+    const msg = createMimeMessage();
+    msg.setSender(settings.SENDER);
+    msg.setTo(settings.RECEIVER);
+    msg.setSubject(`[FEEDBACK] Site: ${rec.site}`);
+    msg.addMessage({
+      contentType: 'text/plain',
+      data: `You have received feedback regarding site: ${rec.site}\n\n` +
+            `Date Submitted: ${rec?.datetime}\n` +
+            `Name Submitted: ${rec?.name}\n` +
+            `Email Address: ${rec?.email}\n` +
+            `Subject: ${rec?.subject}\n` +
+            `Message: ${rec?.message}\n\n`
+    });
+    console.debug(`processRecum:msg:: `,JSON.stringify(msg,null,2)); // DEBUG
 
-  }); // End Promise
+    const params = {
+      Destinations: msg.getRecipients({type: 'to'}).map(box => box.addr),
+      RawMessage: {
+        Data: Buffer.from(msg.asRaw(), 'utf8')
+      },
+      Source: msg.getSender().addr
+    };
+
+    const pRresp = await sesClient.send(new SendRawEmailCommand(params));
+
+    console.debug(`sesClient.send: `,pRresp); // DEBUG
+    return pRresp.MessageId; 
+    } // End if/else SENDER/RECEIVER set
 } // End processRecum
 
 // ************
 // Main Handler
+// ************
 export const handler = async (event,context) => {
   console.log(`Received event: ${JSON.stringify(event,null,2)}`); // DEBUG:
 
   // Check if SECRET_NAME is set as an environment variable (REQUIRED)
   if(!process.env.SECRET_NAME) {
-    console.log("process.env.SECRET_NAME missing", process.env.SECRET_NAME);  // DEBUG
+    console.error("process.env.SECRET_NAME missing", process.env.SECRET_NAME);  // DEBUG
     await handleError("process.env.SECRET_NAME", "Missing Environment Variable", context);
-    return new Error("Missing process.env.SECRET_NAME.");
+    throw new Error("Missing process.env.SECRET_NAME.");
   }
 
-  return await loadSettings({secretName: process.env.SECRET_NAME})
-  .then(async() => {
-    // Process all the records
-    return await Promise.all(
-      event.Records.map(async record => {
-        const recum = unmarshall(record.dynamodb.NewImage);
-        console.debug(`recum: `,JSON.stringify(recum,null,2)); // DEBUG
-        return await processRecum(recum);
-      })
-    ) // End Promise.all
-    .then((resp) => {
-      console.debug(`Promise.all.then: ${resp}`); // DEBUG
-      return "Honkey Donkey";
-    })  // End Promise.all.then
-  })
-  .catch((err) => {
-    console.error('loadSettings.catch: ',err);
-    return "DISAPPOINTED!!!"
-  }); // End loadSettings
+  try {
+    await loadSettings({secretName: process.env.SECRET_NAME})
+  } catch (lSerr) {
+    console.error("Failed to load Settings object.", lSerr);
+    await handleError("loadSettings",lSerr.message, context);
+  }
+
+  const batchItemFailures = [];
+
+  // Loop through all DDB records
+  for (const record of event.Records) {
+    const sequenceNumber = record.dynamodb.SequenceNumber;
+
+    try {
+      // Discard deletes, only process new inserts/updates
+      // This shouldn't happen as we're only passing inserts/updates to the stream.
+      if (record.eventName === 'REMOVE') continue;
+
+      const recum = unmarshall(record.dynamodb.NewImage);
+      console.debug(`recum: `,JSON.stringify(recum,null,2)); // DEBUG
+
+      await processRecum(recum);
+    } catch (recsErr) {
+      console.error(`Failed to process record ID ${sequenceNumber}:`, recsErr);
+      await handleError(`RecordProcessor: ${sequenceNumber}`,recsErr.message, context);
+
+      // Track failures to report to DDB
+      batchItemFailures.push({ itemIdentifier: sequenceNumber });
+
+    } // End try/catch
+  } // End for records loop
+
+  // Tell DDB which stream records failed so it only retries those. 
+  return { batchItemFailures };
 
 } // End Main Handler

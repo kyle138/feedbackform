@@ -124,7 +124,7 @@ export const handler = async (event, context) => {
     }
 
     // Parse the event body
-    let eventObj;
+    var eventObj; // var instead of let so catch can reference.
     try {
       eventObj = JSON.parse(event?.body || '{}');
     } catch (parseErr) {
@@ -177,7 +177,7 @@ export const handler = async (event, context) => {
       }
     };
   
-    if(err == "Insuffient empathetic response") {
+    if(err.message == "Insuffient empathetic response") {
       cro.code = '400';
       cro.message = "Insufficient empathetic request. Please contact admin."
   
