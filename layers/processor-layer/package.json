@@ -1,0 +1,7 @@
+{
+  "name": "sam-feedback",
+  "version": "1.0.0",
+  "dependencies": {
+    "mimetext": "^3.0.28"
+  }
+}

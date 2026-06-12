@@ -40,6 +40,7 @@
     </div>
     <div class="col-md-8 emailform">
         <form name="sentMessage" class="well" id="contactForm"  novalidate>
+            <input type="hidden" id="site" value="Feedback.km">
             <div class="control-group">
                 <div class="controls">
                     <p>Your Name</p>
@@ -60,6 +61,13 @@
                     <input type="text" class="form-control" id="subject" />
                     <div class="help-block"> </div>
                 </div>
+            </div>
+            <div class="collapse control-group">
+              <div class="controls">
+                <label for="score">Score</label>
+                <input type="number" min="1" class="form-control" id="score">
+                <div class="help-block"> </div>
+              </div>
             </div>
             <div class="control-group">
                 <div class="controls">
