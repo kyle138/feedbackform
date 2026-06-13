@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: sam-feedbackform
+
+# Global configuration for all Lambda functions
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    MemorySize: 128
+    Timeout: 30
+    Environment:
+      Variables:
+        FEEDBACKS_TABLE_NAME: !Ref FeedbacksTable
+
+
+# Resources
+Resources:
+  ListenerLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layers/listener-layer
+      LayerName: listener-layer
+      Description: Layer for listener handler
+      CompatibleRuntimes:
+        - nodejs24.x
+    Metadata:
+      BuildMethod: nodejs24.x
+  ProcessorLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layers/processor-layer
+      LayerName: processor-layer
+      Description: Layer for processor handler
+      CompatibleRuntimes:
+        - nodejs24.x
+  ListenerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/listener.handler
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref ListenerLayer
+      Policies:
+        # SAM policy template for CRUD access
+        - DynamoDBCrudPolicy: 
+            TableName: !Ref FeedbacksTable
+        - DynamoDBWritePolicy:
+            TableName: "errorLogs"
+      Events:
+        FeedbackForm: 
+          Type: Api 
+          Properties:
+            Path: /feedback
+            Method: post 
+  ProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/processor.handler
+      Policies: 
+        # Simplified permission using SAM policy templates
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref FeedbackSecret
+        - SESBulkTemplatedCrudPolicy:
+            IdentityName: !Sub ${FeedbackSesId}
+      Environment:
+        Variables:
+          SECRET_NAME: !Sub "${AWS::StackName}-Secret"
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref ProcessorLayer
+      Events:
+        FeedbacksTableStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt FeedbacksTable.StreamArn
+            BatchSize: 100
+            StartingPosition: LATEST
+            FunctionResponseTypes: [ReportBatchItemFailures]
+  FeedbacksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-Feedbacks"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: datetime
+          AttributeType: S
+      KeySchema:
+        - AttributeName: datetime
+          KeyType: HASH
+      OnDemandThroughput:
+        MaxReadRequestUnits: 10
+        MaxWriteRequestUnits: 10
+      TableClass: STANDARD_INFREQUENT_ACCESS
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+      DeletionProtectionEnabled: false
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+  FeedbackSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "${AWS::StackName}-Secret"
+      Description: "Secrets for feedbackform app"
+  FeedbackSesId:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Sub '{{resolve:secretsmanager:${FeedbackSecret}::RECEIVER::}}'
+            
+Outputs: 
+  FeedbackFormApi:
+    Description: "API Gateway endpoint URL for Prod stage for Feedback form"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/feedback/"
+  ListenerFunction: 
+    Description: "Feedback form Lambda Function ARN"    
+    Value: !GetAtt ListenerFunction.Arn 
+  ListenerFunctionIamRole:
+    Description: "Implicit IAM Role created for Feedback Form Function"
+    Value: !GetAtt ListenerFunctionRole.Arn 
