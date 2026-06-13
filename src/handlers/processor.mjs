@@ -25,7 +25,7 @@ const settings={};
 // Parameters:
 // secretName - The ASM secret name retrief from process.env
 async function loadSettings(params) {
-  console.debug(`loadSettings:params:: `,JSON.stringify(params,null,2)); // DEBUG
+//  console.debug(`loadSettings:params:: `,JSON.stringify(params,null,2)); // DEBUG
   // Check if keyPair is already stored on global 'settings' object.
   if(settings.hasOwnProperty('SENDER') && settings.hasOwnProperty('RECEIVER')) {
     console.log('loadSettings: SENDER and RECEIVER are already set.');
@@ -41,12 +41,12 @@ async function loadSettings(params) {
   // Note: If this Lambda is in a VPC you will be "awaiting" a long time(out) if 
   // you don't first configure a VPC Endpoint for ASM.
   const lSresp = await smClient.send(new GetSecretValueCommand({SecretId: params.secretName}));
-  console.debug('loadSettings:smClient::lSresp::: ',lSresp); // DEBUG:
-  console.log('loadSettings: settings set.');
+//  console.debug('loadSettings:smClient::lSresp::: ',lSresp); // DEBUG:
+//  console.log('loadSettings: settings set.');
   const secret = JSON.parse(lSresp.SecretString);
   settings.SENDER = secret.SENDER;
   settings.RECEIVER = secret.RECEIVER;
-  console.debug(`settings cached:: `,JSON.stringify(settings,null,2)); // DEBUG
+  console.debug(`loadSettings: cached:: `,JSON.stringify(settings,null,2)); // DEBUG
 } // End loadSettings
 
 
@@ -75,7 +75,7 @@ async function processRecum(rec) {
             `Subject: ${rec?.subject}\n` +
             `Message: ${rec?.message}\n\n`
     });
-    console.debug(`processRecum:msg:: `,JSON.stringify(msg,null,2)); // DEBUG
+//    console.debug(`processRecum:msg:: `,JSON.stringify(msg,null,2)); // DEBUG
 
     const params = {
       Destinations: msg.getRecipients({type: 'to'}).map(box => box.addr),

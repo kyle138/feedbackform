@@ -76,7 +76,7 @@ function trimObj(obj) {
 // message {string} - *REQUIRED* 
 // @returns {promise}
 async function postDynamo(params) {
-  console.debug(`postDynamo: `,JSON.stringify(params,null,2)); // DEBUG
+//  console.debug(`postDynamo: `,JSON.stringify(params,null,2)); // DEBUG
   const pdParams = {
     TableName: process.env.FEEDBACKS_TABLE_NAME,
     Item: {
@@ -138,7 +138,7 @@ export const handler = async (event, context) => {
     // Assign headers and sourceIP to eventObj
     eventObj.headers = event?.headers;
     eventObj.sourceIP = event?.headers["X-Forwarded-For"].split(',')[0].trim() || "UNKNOWN_IP";
-    console.debug(`eventObj: `,JSON.stringify(eventObj,null,2)); // DEBUG Yeah I parsed it to stringify it
+//    console.debug(`eventObj: `,JSON.stringify(eventObj,null,2)); // DEBUG Yeah I parsed it to stringify it
 
     // Check if Source IP is already recorded
     if(qoqmey.includes(eventObj?.sourceIP)) {
@@ -192,7 +192,7 @@ export const handler = async (event, context) => {
     } // End if/else err empathy
   
     await handleError("Promise.all.catch",cro.message,context);
-    console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
+//    console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
     return createResponseObject(cro);
 
   } // End main try/catch
