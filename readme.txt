@@ -5,14 +5,19 @@ The links below provide the front end code for a serverless contact or feedback 
 as well as the necessary steps in AWS to setup an API Gateway, IAM roles, Lambda function, and a DynamoDB Table.
 
 
-The code in this repo is split into two folders, [S3] and [lambda].
+The code in this repo is deployed using aws sam.  
+After the first deploy a new secret will be created in Secrets Manager, it will need to be updated with your SES email addresses.
+```javascript
+{
+  "SENDER": "Feedback Processor <feedback@youremaildomain.com>",
+  "RECEIVER": "youraddress@youremaildomain.com"
+}
+```
+
 [S3]:
 All files and folders within the S3 folder will need to go within an S3 bucket configured for web hosting.
 This serves the front end HTML as well as the clientside javascript files required for collecting the form
-information and submitting the data to the API Gateway.
-[Lambda]:
-The lambda folder contains a single lambdafunc.js file. The contents of this file will be copied into
-your lambda function from within the AWS console.
+information and submitting the data to the API Gateway. After the lambda is deployed copy the API Gateway endpoint and update the feedback.js to use this endpoint.
 
 
 A brief walkthrough can be found at the following:
