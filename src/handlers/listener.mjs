@@ -143,7 +143,7 @@ export const handler = async (event, context) => {
     // Check if Source IP is already recorded
     if(qoqmey.includes(eventObj?.sourceIP)) {
       console.log(`SourceIP included in qoqmey.`);
-      handleError("SourceIP",`SourceIP ${eventObj.sourceIP} already exists in qoqmey array.`,context);
+      handleError("SourceIP",`SourceIP ${eventObj.sourceIP} already exists in qoqmey array. Site: ${eventObj.site}`,context);
       return createResponseObject({
         code: '400',
         message: "Insufficient empathetic request. Please contact admin.",
@@ -191,7 +191,7 @@ export const handler = async (event, context) => {
       cro.message = err.toString();
     } // End if/else err empathy
   
-    await handleError("Promise.all.catch",cro.message,context);
+    await handleError("Promise.all.catch",cro.message+` Site: ${eventObj.site}`,context);
 //    console.debug(`catch:cro:: `,JSON.stringify(cro,null,2)); // DEBUG
     return createResponseObject(cro);
 
